@@ -11,12 +11,15 @@ env:
     - ANT_VERSION=1.10.8
     - ANT_HOME=${TRAVIS_BUILD_DIR}/apache-ant-${ANT_VERSION}
     - CATALINA_HOME=${TRAVIS_BUILD_DIR}/tomcat
+    - GOPATH=${TRAVIS_BUILD_DIR}/go
     # must change prompt; default prompt causes failure in ant
     - PS1="> "
 
 
 before_install:
   - echo -e "machine github.com\n  login $GH_TOKEN" > ~/.netrc
+
+install:
   # install tomcat
   - echo "-------- install tomcat"
   - tc_url=`curl -s http://tomcat.apache.org/download-90.cgi | grep -oE 'href="https?:.*apache-tomcat-9.[0-9]+.[0-9]+.tar.gz"' | grep -o 'http.*.gz' | head -n1`
@@ -26,12 +29,20 @@ before_install:
   - tc_dir=`basename $tc_url ".tar.gz"`
   - ln -s $tc_dir tomcat
   # install ant
-  - echo "-------- install other dependencies"
+  - echo "-------- install ant"
   - wget https://www.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz
   - tar -xzvf apache-ant-${ANT_VERSION}-bin.tar.gz
   - export PATH=${ANT_HOME}/bin:${PATH}
+  # install go (using https://github.com/travis-ci/gimme)
+  - echo "-------- install go"
+  - brew install gimme
+  - gimme stable
+  # install github-release
+  - echo "-------- install github-release"
+  - go get github.com/github-release/github-release
+  - export PATH=${GOPATH}/bin:${PATH}
 
-install:
+before_script:
   - git clone https://github.com/PharmGKB/PharmGKB.git PharmGKB
   - cd PharmGKB
   - git clone https://github.com/PharmGKB/pgkb-common.git pgkb-common
@@ -42,3 +53,5 @@ install:
 script:
   - ant pathvisio-mac
 
+after_success:
+  - bin/uploadAssets-pathvisio.sh
