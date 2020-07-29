@@ -4,6 +4,10 @@ osx_image: xcode12u
 language: java
 
 
+addons:
+  ssh_known_hosts: git.example.com
+
+
 env:
   global:
     - PHARMGKB=$TRAVIS_BUILD_DIR/PharmGKB
