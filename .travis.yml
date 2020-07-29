@@ -1,0 +1,43 @@
+os: osx
+osx_image: xcode12u
+
+language: java
+
+
+env:
+  global:
+    - PHARMGKB=$TRAVIS_BUILD_DIR/PharmGKB
+    - PHARMGKB_USER=travis
+    - ANT_VERSION=1.10.8
+    - ANT_HOME=$TRAVIS_BUILD_DIR/apache-ant-${ANT_VERSION}
+    - CATALINA_HOME=$TRAVIS_BUILD_DIR/tomcat
+    # must change prompt; default prompt causes failure in ant
+    - PS1="> "
+
+
+jobs:
+  - stage: Build
+    before_install:
+      # install tomcat
+      - echo "-------- install tomcat"
+      - tc_url=`curl -s http://tomcat.apache.org/download-90.cgi | grep -oE 'href="https?:.*apache-tomcat-9.[0-9]+.[0-9]+.tar.gz"' | grep -o 'http.*.gz' | head -n1`
+      - wget -q $tc_url
+      - tc_gz=`basename $tc_url`
+      - tar -xf $tc_gz
+      - tc_dir=`basename $tc_url ".tar.gz"`
+      - ln -s $tc_dir tomcat
+      # install ant
+      - echo "-------- install other dependencies"
+      - wget https://www.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz
+      - tar -xzvf apache-ant-${ANT_VERSION}-bin.tar.gz
+
+    install:
+      - git clone git@github.com:PharmGKB/PharmGKB.git PharmGKB
+      - cd PharmGKB
+      - git clone git@github.com:PharmGKB/pgkb-common.git pgkb-common
+      - git clone git@github.com:PharmGKB/pgkb-common-io.git pgkb-common-io
+      - cp passwords.properties.template passwords.properties
+
+    script:
+      - ant pathvisio-mac
+
