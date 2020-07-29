@@ -40,5 +40,5 @@ jobs:
       - cp passwords.properties.template passwords.properties
 
     script:
-      - ant pathvisio-mac
+      - $ANT_HOME/bin/ant pathvisio-mac
 
