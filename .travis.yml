@@ -57,3 +57,5 @@ deploy:
   provider: script
   skip_cleanup: true
   script: ${PHARMGKB}/bin/uploadAssets-pathvisio.sh
+  on:
+    branch: main
