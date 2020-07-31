@@ -50,8 +50,14 @@ before_script:
   - cp passwords.properties.template passwords.properties
   - export JAVA_HOME=$(/usr/libexec/java_home)
 
-script:
-  - ant pathvisio-mac
+jobs:
+  include:
+    - stage: Build
+      script:
+        - cd ${PHARMGKB}
+        - ant pathvisio-mac
 
-after_success:
-  - bin/uploadAssets-pathvisio.sh
+    - stage: Upload
+      script:
+        - cd ${PHARMGKB}
+        - bin/uploadAssets-pathvisio.sh
