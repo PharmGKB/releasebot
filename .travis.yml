@@ -17,7 +17,7 @@ env:
 
 jobs:
   include:
-    - stage: Setup
+    - stage: Build
       before_install:
         - echo -e "machine github.com\n  login $GH_TOKEN" > ~/.netrc
       install:
@@ -49,10 +49,7 @@ jobs:
         - git clone https://github.com/PharmGKB/pgkb-common-io.git pgkb-common-io
         - cp passwords.properties.template passwords.properties
         - export JAVA_HOME=$(/usr/libexec/java_home)
-
-    - stage: Build
       script:
-        - cd ${PHARMGKB}
         - ant pathvisio-mac
 
     - stage: Upload
