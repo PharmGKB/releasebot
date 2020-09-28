@@ -2,7 +2,8 @@ os: osx
 osx_image: xcode9.3
 
 language: java
-
+go:
+  - 1.x
 
 env:
   global:
@@ -33,11 +34,6 @@ install:
   - wget https://www.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz
   - tar -xzvf apache-ant-${ANT_VERSION}-bin.tar.gz
   - export PATH=${ANT_HOME}/bin:${PATH}
-  # install go (using https://github.com/travis-ci/gimme)
-  - echo "-------- install go"
-  - which brew
-  - brew install gimme
-  - gimme stable
   # install github-release
   - echo "-------- install github-release"
   - go get github.com/github-release/github-release
