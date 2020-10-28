@@ -48,7 +48,7 @@ before_script:
   - export JAVA_HOME=$(/usr/libexec/java_home)
 
 script:
-  - ant pathvisio-mac
+  - $ANT_HOME/bin/ant pathvisio-mac
 
 deploy:
   provider: script
