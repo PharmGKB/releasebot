@@ -11,6 +11,7 @@ env:
     - PHARMGKB_USER=travis
     - ANT_HOME=$TRAVIS_BUILD_DIR/ant
     - CATALINA_HOME=${TRAVIS_BUILD_DIR}/tomcat
+    - GOPATH=${TRAVIS_BUILD_DIR}/go
     # must change prompt; default prompt causes failure in ant
     - PS1="> "
 
@@ -38,6 +39,7 @@ install:
   # install github-release
   - echo "-------- install github-release"
   - go get github.com/github-release/github-release
+  - export PATH=${GOPATH}/bin:${PATH}
 
 before_script:
   - git clone https://github.com/PharmGKB/PharmGKB.git PharmGKB
