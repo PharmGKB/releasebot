@@ -1,0 +1,87 @@
+name: Build & Release PGKB PathVisio for Mac
+
+on:
+  push:
+    branches:
+      - "*"
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: macOS-latest
+    env:
+      PHARMGKB: /Users/runner/work/releasebot/releasebot/PharmGKB
+      PHARMGKB_USER: travis
+      CATALINA_HOME: /Users/runner/work/releasebot/releasebot/tomcat
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.17.2'
+
+      - name: Config Go Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-mod-
+
+
+      - name: Install github-release
+        run: go install github.com/github-release/github-release@latest
+
+      - name: Download Tomcat
+        run: |
+          tc_url=`curl -s http://tomcat.apache.org/download-90.cgi | grep -oE 'href="https?:.*apache-tomcat-9.[0-9]+.[0-9]+.tar.gz"' | grep -o 'http.*.gz' | head -n1`
+          echo "Downloading ${tc_url}"
+          wget -q $tc_url
+          tc_gz=`basename $tc_url`
+          tar -xf $tc_gz
+          tc_dir=`basename $tc_url ".tar.gz"`
+          ln -s $tc_dir tomcat
+
+      - name: Get version
+        run: echo PGKB_VERSION=`cat version.txt` >> $GITHUB_ENV
+
+      - name: Checkout PharmGKB
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          repository: PharmGKB/PharmGKB
+          ref: ${{env.PGKB_VERSION}}
+          path: './PharmGKB'
+
+      - name: Checkout pgkb-common
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          repository: PharmGKB/pgkb-common
+          ref: 'master'
+          path: './PharmGKB/pgkb-common'
+
+      - name: Compile PathVisio
+        run: |
+          cd PharmGKB
+          cp passwords.properties.template passwords.properties
+          ant pathvisio-mac
+
+      - name: Upload PathVisio
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          pwd
+          chmod 755 upload-macos-pathvisio.sh
+          ./upload-macos-pathvisio.sh ${{env.PGKB_VERSION}}
