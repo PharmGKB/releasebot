@@ -3,7 +3,7 @@ name: Build & Release PGKB PathVisio for Mac
 on:
   push:
     branches:
-      - "*"
+      - "main"
     paths-ignore:
       - "**.md"
 
@@ -82,6 +82,29 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          pwd
-          chmod 755 upload-macos-pathvisio.sh
-          ./upload-macos-pathvisio.sh ${{env.PGKB_VERSION}}
+          github-release upload --security-token ${{ secrets.GH_TOKEN }} \
+             --user PharmGKB \
+             --repo PharmGKB \
+             --tag ${{env.PGKB_VERSION}} \
+             --name "pgkb-pathvisio.zip" \
+             --file build/dist/pgkb-pathvisio.zip
+
+      - name: Upload PathVisio (mac)
+        run: |
+          github-release upload --security-token ${{ secrets.GH_TOKEN }} \
+          --user PharmGKB \
+          --repo PharmGKB \
+          --tag ${{env.PGKB_VERSION}} \
+          --name "pgkb-pathvisio.app.full.zip" \
+          --file build/dist/pgkb-pathvisio.app.full.zip
+
+      - name: Upload timestamp
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          github-release upload --security-token ${{ secrets.GH_TOKEN }} \
+             --user PharmGKB \
+             --repo releasebot \
+             --tag latest \
+             --name "pgkb-pathvisio.timestamp.txt" \
+             --file build/dist/pgkb-pathvisio.timestamp.txt
