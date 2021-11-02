@@ -82,7 +82,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          cd PharmPGKB
+          cd PharmGKB
           github-release upload --security-token ${{ secrets.GH_TOKEN }} \
              --user PharmGKB \
              --repo PharmGKB \
@@ -92,7 +92,7 @@ jobs:
 
       - name: Upload PathVisio (mac)
         run: |
-          cd PharmPGKB
+          cd PharmGKB
           github-release upload --security-token ${{ secrets.GH_TOKEN }} \
           --user PharmGKB \
           --repo PharmGKB \
@@ -104,7 +104,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          cd PharmPGKB
+          cd PharmGKB
           github-release upload --security-token ${{ secrets.GH_TOKEN }} \
              --user PharmGKB \
              --repo releasebot \
