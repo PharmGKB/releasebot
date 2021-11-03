@@ -3,7 +3,7 @@ name: Build & Release PGKB PathVisio for Mac
 on:
   push:
     branches:
-      - "main"
+      - "*"
     paths-ignore:
       - "**.md"
 
@@ -23,7 +23,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          distribution: 'temurin'
+          distribution: 'adopt-hotspot'
           java-version: '8'
 
       - name: Install Go
@@ -57,7 +57,11 @@ jobs:
         run: echo PGKB_VERSION=`cat version.txt` >> $GITHUB_ENV
 
       - name: Get PathVisio version
-        run: echo PATHVSIO_VERSION=`cat pathvisio_version.txt` >> $GITHUB_ENV
+        run: echo PATHVISIO_VERSION=`cat pathvisio_version.txt` >> $GITHUB_ENV
+
+      - run: echo PGKB=${{env.PGKB_VERSION}}, PATHVISIO=${{env.PATHVISIO_VERSION}}
+      - run: echo $JAVA_HOME
+      - run: echo java -version
 
       - name: Checkout PharmGKB
         uses: actions/checkout@v2
@@ -103,6 +107,15 @@ jobs:
           --name "pgkb-pathvisio.app.full.zip" \
           --file build/dist/pgkb-pathvisio.app.full.zip
 
+      - name: Create releasebot release
+        if: env.PGKB_VERSION == env.PATHVISIO_VERSION
+        run: |
+          github-release release --security-token ${{ secrets.GH_TOKEN }} \
+          --user PharmGKB \
+          --repo releasebot \
+          --tag ${{env.PGKB_VERSION}} \
+          --name ${{env.PGKB_VERSION}}
+
       - name: Upload timestamp
         if: env.PGKB_VERSION == env.PATHVISIO_VERSION
         env:
@@ -112,6 +125,6 @@ jobs:
           github-release upload --security-token ${{ secrets.GH_TOKEN }} \
              --user PharmGKB \
              --repo releasebot \
-             --tag latest \
+             --tag ${{env.PGKB_VERSION}} \
              --name "pgkb-pathvisio.timestamp.txt" \
              --file build/dist/pgkb-pathvisio.timestamp.txt
