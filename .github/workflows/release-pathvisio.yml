@@ -53,8 +53,11 @@ jobs:
           tc_dir=`basename $tc_url ".tar.gz"`
           ln -s $tc_dir tomcat
 
-      - name: Get version
+      - name: Get PharmGKB version
         run: echo PGKB_VERSION=`cat version.txt` >> $GITHUB_ENV
+
+      - name: Get PathVisio version
+        run: echo PATHVSIO_VERSION=`cat pathvisio_version.txt` >> $GITHUB_ENV
 
       - name: Checkout PharmGKB
         uses: actions/checkout@v2
@@ -101,6 +104,7 @@ jobs:
           --file build/dist/pgkb-pathvisio.app.full.zip
 
       - name: Upload timestamp
+        if: env.PGKB_VERSION == env.PATHVISIO_VERSION
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
