@@ -3,7 +3,7 @@ name: Build & Release PGKB PathVisio for Mac
 on:
   push:
     branches:
-      - "*"
+      - "main"
     paths-ignore:
       - "**.md"
 
@@ -45,7 +45,7 @@ jobs:
 
       - name: Download Tomcat
         run: |
-          tc_url=`curl -s http://tomcat.apache.org/download-90.cgi | grep -oE 'href="https?:.*apache-tomcat-9.[0-9]+.[0-9]+.tar.gz"' | grep -o 'http.*.gz' | head -n1`
+          tc_url=`curl -s https://tomcat.apache.org/download-90.cgi | grep -oE 'href="https?:.*apache-tomcat-9.[0-9]+.[0-9]+.tar.gz"' | grep -o 'http.*.gz' | head -n1`
           echo "Downloading ${tc_url}"
           wget -q $tc_url
           tc_gz=`basename $tc_url`
@@ -58,10 +58,7 @@ jobs:
 
       - name: Get PathVisio version
         run: echo PATHVISIO_VERSION=`cat pathvisio_version.txt` >> $GITHUB_ENV
-
       - run: echo PGKB=${{env.PGKB_VERSION}}, PATHVISIO=${{env.PATHVISIO_VERSION}}
-      - run: echo $JAVA_HOME
-      - run: echo java -version
 
       - name: Checkout PharmGKB
         uses: actions/checkout@v2
@@ -128,3 +125,13 @@ jobs:
              --tag ${{env.PGKB_VERSION}} \
              --name "pgkb-pathvisio.timestamp.txt" \
              --file build/dist/pgkb-pathvisio.timestamp.txt
+
+      - name: Send Slack notification on failure
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel: dev
+          status: FAILED
+          color: danger
