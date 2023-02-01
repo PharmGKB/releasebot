@@ -35,7 +35,7 @@ jobs:
           go-version: '^1.17.2'
 
       - name: Config Go Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -78,6 +78,9 @@ jobs:
           repository: PharmGKB/pgkb-common
           ref: 'master'
           path: './PharmGKB/pgkb-common'
+
+      - run: ls
+      - run: ls PharmGKB
 
       - name: Compile PathVisio
         run: |
